@@ -1,0 +1,69 @@
+#!/usr/bin/python3
+import sys;
+import random as rnd;
+import pygame as pg;
+
+pg.init();
+
+println = print;
+
+def main(argc: int, argv: list):
+  W = 800; H = 640;
+  Display = pg.display.set_mode((W, H));
+  pg.display.set_caption("Meinkraft");
+
+  font = pg.font.Font("./fonts/minecraft.ttf", 20);
+
+  player = pg.Rect(0, 255, 25, 45);
+  player_rot = 0;
+  gravity = 0;
+  world = [];
+
+  println("DEBUG: Game started");
+
+  println("DEBUG: World generation started");
+
+  noise_map = [16];
+  for i in range(100):
+    relief = rnd.randint(-1, 1);
+    noise_map.append(noise_map[-1]+relief);
+
+  println("DEBUG: World generation ended");
+
+  while (True):
+    for ev in pg.event.get():
+      if (ev.type == pg.QUIT):
+        return 1;
+      elif (ev.type == pg.KEYDOWN):
+        if (ev.key == pg.K_a):
+          player_rot = -1;
+        elif (ev.key == pg.K_d):
+          player_rot = 1;
+        elif (ev.key == pg.K_SPACE):
+          gravity = -2;
+      elif (ev.type == pg.KEYUP):
+        if ((ev.key == pg.K_a) or (ev.key == pg.K_d)):
+          player_rot = 0;
+    if (player_rot != 0):
+      player.x += player_rot;
+    player_x = player.x/25;
+    player_y = -(player.y/25-14);
+    Display.fill((0x6B, 0xCB, 0xEC));
+    Display.blit(font.render("Meinkraft Alpha 1.0.10", (0x00, 0x00, 0x00), False), (10, 10));
+    Display.blit(font.render(f"X: {player_x}", (0x00, 0x00, 0x00), False), (10, 60));
+    Display.blit(font.render(f"Y: {player_y}", (0x00, 0x00, 0x00), False), (10, 85));
+    pg.draw.rect(Display, (0xFF, 0x00, 0x00), player);
+    gen_x = 0;
+    println(noise_map);
+    for top_block in noise_map:
+      pg.draw.rect(Display, (0x79, 0xEA, 0x18), pg.Rect(gen_x, top_block*25, 25, 25));
+      gen_x += 25;
+    if (player_y > 1):
+      player.y += gravity;
+      gravity += 0.04;
+    pg.display.update();
+  return 0;
+
+if (__name__ == "__main__"):
+  exit(main(len(sys.argv), sys.argv));
+
