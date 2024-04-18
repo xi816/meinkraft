@@ -69,10 +69,12 @@ def main(argc: int, argv: list):
         gen_x += 1;
     if (player_y >= 1):
       player.y += gravity;
-      gravity += 0.6;
+      if (gravity < 10):
+        gravity += 0.6;
     else:
       println("Ground touch");
       player.y -= 0.6;
+      gravity = 0;
     Display.blit(font.render(f"Meinkraft {game_version}", (0x00, 0x00, 0x00), False), (10, 10));
     Display.blit(font.render(f"X: {player_x}", (0x00, 0x00, 0x00), False), (10, 60));
     Display.blit(font.render(f"Y: {player_y}", (0x00, 0x00, 0x00), False), (10, 85));
