@@ -3,6 +3,7 @@ import sys;
 import random as rnd;
 import pygame as pg;
 
+from math import floor;
 from block import Block;
 
 pg.init();
@@ -13,7 +14,7 @@ def main(argc: int, argv: list):
   W = 800; H = 640;
   Display = pg.display.set_mode((W, H));
   pg.display.set_caption("Meinkraft");
-  game_version = "Indev 0.24"
+  game_version = "0.26.0a TEST"
 
   font = pg.font.Font("./fonts/minecraft.ttf", 20);
   clock = pg.time.Clock();
@@ -21,10 +22,14 @@ def main(argc: int, argv: list):
   player = pg.Rect(0, 255, 25, 45);
   player_rot = 0;
   gravity = 0;
+  ground_touch = False;
 
-  TEXTURES = [None, (0xA3, 0xA3, 0xA3), (0x79, 0xEA, 0x18), (0xB4, 0x5E, 0x32)];
+  TEXTURES = [None, (0xA3, 0xA3, 0xA3), (0x79, 0xEA, 0x18), (0xB4, 0x5E, 0x32), (0x30, 0x30, 0x30)];
 
-  world = [[[Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(2), Block(3), Block(3), Block(3), Block(1)], [Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(2), Block(3), Block(3), Block(3), Block(1)], [Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(2), Block(3), Block(3), Block(3), Block(1)], [Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(2), Block(3), Block(3), Block(3), Block(1)], [Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(2), Block(3), Block(3), Block(3), Block(1)], [Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(2), Block(3), Block(3), Block(3), Block(1)], [Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(2), Block(3), Block(3), Block(3), Block(1)], [Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(2), Block(3), Block(3), Block(3), Block(1)]]];
+  world = [[[Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(2), Block(3), Block(3), Block(3), Block(1), Block(1), Block(4)], [Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(2), Block(3), Block(3), Block(3), Block(1), Block(1), Block(4)], [Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(2), Block(3), Block(3), Block(3), Block(1), Block(1), Block(4)], [Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(2), Block(3), Block(3), Block(3), Block(1), Block(1), Block(4)], [Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(2), Block(3), Block(3), Block(3), Block(1), Block(1), Block(4)], [Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(2), Block(3), Block(3), Block(3), Block(1), Block(1), Block(4)], [Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(2), Block(3), Block(3), Block(3), Block(1), Block(1), Block(4)], [Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(2), Block(3), Block(3), Block(3), Block(1), Block(1), Block(4)], [Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(0), Block(4)]], [[Block(1)]]];
+  for chunk in world:
+    while (len(chunk) < 16):
+      chunk.append([]);
 
   println("DEBUG: Game started");
 
@@ -47,13 +52,15 @@ def main(argc: int, argv: list):
         elif (ev.key == pg.K_d):
           player_rot = 1;
         elif (ev.key == pg.K_SPACE):
-          gravity = -10;
+          if (ground_touch):
+            gravity = -10;
+            ground_touch = False;
       elif (ev.type == pg.KEYUP):
         if ((ev.key == pg.K_a) or (ev.key == pg.K_d)):
           player_rot = 0;
     player.x += player_rot * 4;
     player_x = round(player.x/25, 2);
-    player_y = round(-(player.y/25-14), 2);
+    player_y = round(-(player.y/25-4), 2);
     Display.fill((0x6B, 0xCB, 0xEC));
     pg.draw.rect(Display, (0xFF, 0x00, 0x00), player);
     gen_x = 0;
@@ -67,17 +74,22 @@ def main(argc: int, argv: list):
           gen_y += 1;
         gen_y = 0;
         gen_x += 1;
-    if (player_y >= 1):
+    # Look for a solid block under the player.
+    solid_block_under = 0;
+    while (world[floor(player_x) // 16][floor(player_x) % 16][-((floor(player_y)+14)+solid_block_under)].bid == 0):
+      solid_block_under -= 1;
+    if (player_y >= solid_block_under-9):
       player.y += gravity;
-      if (gravity < 10):
+      if (gravity < 10) and (not ground_touch):
         gravity += 0.6;
     else:
-      println("Ground touch");
+      println("PLAYER ACTION: Ground touch");
+      ground_touch = True;
       player.y -= 0.6;
       gravity = 0;
-    Display.blit(font.render(f"Meinkraft {game_version}", (0x00, 0x00, 0x00), False), (10, 10));
+    Display.blit(font.render(game_version, (0x00, 0x00, 0x00), False), (10, 10));
     Display.blit(font.render(f"X: {player_x}", (0x00, 0x00, 0x00), False), (10, 60));
-    Display.blit(font.render(f"Y: {player_y}", (0x00, 0x00, 0x00), False), (10, 85));
+    Display.blit(font.render(f"Y: {player_y}    Touches ground: {ground_touch}", (0x00, 0x00, 0x00), False), (10, 85));
     pg.display.update();
     clock.tick(60);
   return 0;
