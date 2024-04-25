@@ -1,0 +1,12 @@
+# Version config
+# R I C V W P Z N A K
+
+$game-version "s-a419IA"
+
+@normal-bind true
+@custom-bind-goleft "A"
+@custom-bind-goright "D"
+@custom-bind-jump "space"
+
+@custom-bind-quit "Z"
+

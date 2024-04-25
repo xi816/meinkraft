@@ -5,6 +5,7 @@ import pygame as pg;
 
 from math import floor;
 from block import Block;
+from configParser import parseConfig;
 
 pg.init();
 
@@ -14,7 +15,11 @@ def main(argc: int, argv: list):
   W = 800; H = 640;
   Display = pg.display.set_mode((W, H));
   pg.display.set_caption("Meinkraft");
-  game_version = "0.26.0a TEST"
+
+  with open("./config.dt") as fl:
+    gameConfig = parseConfig(fl);
+
+  game_version = gameConfig["game-version"];
 
   font = pg.font.Font("./fonts/minecraft.ttf", 20);
   clock = pg.time.Clock();
